@@ -1,0 +1,101 @@
+CREATE OR REPLACE PROCEDURE PR_INV_ICLEXU_FDO(
+PsCDUSU      VARCHAR2,
+PnIDCTI      NUMBER,
+PnIDFUNIVE   NUMBER,
+PsDCERR      OUT VARCHAR2)
+
+AS
+
+
+sDCERR               VARCHAR2(255);
+nIDFUNIVE            NUMBER;
+sNMEMIRDZ            VARCHAR2(100);
+nIDOPECTIQUOFUN      NUMBER;
+nIDCTI               NUMBER;
+nIDLSTCTI            NUMBER;
+dDTINIAUX            DATE;
+dDTFIMAUX            DATE;
+dDTMINOPE            DATE;
+nIDULTOPE            NUMBER;
+dDTULTOPE            DATE;
+nQTANT               DECIMAL(21,10);
+nQTATU               DECIMAL(21,10);
+nQTQUOOPE            DECIMAL(21,10);
+nCOUNT               NUMBER;
+
+CURSOR C_REL_CTLFDO_CTI IS
+SELECT  A.NMEMI
+  FROM INV_FUNIVE A
+WHERE EXISTS (SELECT 1
+                FROM INV_OPE_QUOFUN  B, INV_OPE_CTIQUOFUN C, INV_CARTEIRAS D
+              WHERE A.IDFUNIVE       = B.IDFUNIVE
+                AND B.IDOPECTIQUOFUN = C.IDOPECTIQUOFUN
+                AND C.IDCTI = D.IDCTI
+                AND C.IDCTI = PnIDCTI)
+AND A.IDFUNIVE = PnIDFUNIVE;
+                
+BEGIN
+
+
+OPEN C_REL_CTLFDO_CTI;
+ LOOP
+    FETCH C_REL_CTLFDO_CTI
+    INTO  sNMEMIRDZ;
+    IF NOT C_REL_CTLFDO_CTI%FOUND THEN
+     EXIT;
+    END IF;
+
+       -- Verificar a data da primeira opera��o na carteira
+       
+          SELECT COUNT(*)
+          INTO nCOUNT
+          FROM INV_OPE_QUOFUN B, INV_OPE_CTIQUOFUN C, INV_CARTEIRAS D    
+        WHERE B.IDOPECTIQUOFUN   = C.IDOPECTIQUOFUN
+           AND C.IDCTI           = D.IDCTI
+           AND B.IDFUNIVE        = PnIDFUNIVE
+           --AND B.IDOPEBOLQUOFUN  = PnIDOPE
+           AND C.IDCTI           = PnIDCTI;
+           
+          IF nCOUNT = 1 THEN
+            PR_SYS_NOTIFICACAO(PsCDUSU,41,'Fundo ' || sNMEMIRDZ || ' cadastrado, gerar arquivo XML para a PREVIC.' , sDCERR);
+          ELSE
+          
+          -- Recupera a �ltima opera��o na carteira
+          SELECT  MAX(B.IDOPEBOLQUOFUN)
+          INTO nIDULTOPE 
+            FROM INV_OPE_QUOFUN B, INV_OPE_CTIQUOFUN C
+          WHERE B.IDOPECTIQUOFUN = C.IDOPECTIQUOFUN
+            AND C.IDCTI = PnIDCTI
+            --AND B.IDOPEBOLQUOFUN  = PnIDOPE
+            AND B.IDFUNIVE = PnIDFUNIVE;
+
+          -- Recupera a data e a quantidade atual
+          SELECT  DISTINCT C.DTOPE, B.QTQUOATU
+          INTO  dDTULTOPE, nQTATU
+            FROM INV_OPE_QUOFUN B, INV_OPE_CTIQUOFUN C
+          WHERE B.IDOPECTIQUOFUN = C.IDOPECTIQUOFUN
+            AND B.IDOPEBOLQUOFUN = nIDULTOPE;
+         
+      
+              -- Se a quantidade atual for = 0 notificar exclus�o do fundo da carteira, caso contr�rio notificar a inclus�o
+            IF  nQTATU = 0 THEN
+            PR_SYS_NOTIFICACAO(PsCDUSU,41,'Resgate total para o fundo:' || sNMEMIRDZ, sDCERR);
+            END IF;
+       END IF;
+
+END LOOP;
+CLOSE C_REL_CTLFDO_CTI;
+
+ 
+
+
+ 
+
+sDCERR := 'OK';
+
+/***** Tratamento de erros. *****/
+<<SAIDA>>
+   PsDCERR := sDCERR;
+
+END;
+/
