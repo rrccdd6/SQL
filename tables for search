@@ -1,0 +1,50 @@
+-- TABELA DE FUNDOS DETALHADO ------------------------------------------------------------------------------------ 
+
+SELECT * FROM INV_DETFDO
+
+--- TABELA CARTEIRAS ---------------------------------------------------------------------------------------------
+
+SELECT *  FROM INV_CARTEIRAS
+
+-------- TABELA DE FUNDOS -----------------------------------------------------------------------------------------
+
+SELECT * FROM INV_FUNIVE 
+
+--------- TABELA DE OPERA��O COM FUNDOS ---------------------------------------------------------------------------
+
+SELECT * FROM INV_OPE_FUN
+
+---------- TABELA DE OPERA��O DE CARTEIRA COTAS E FUNDOS -----------------------------------------------------------
+
+SELECT * FROM INV_OPE_CTIQUOFUN   
+
+----------- TODAS AS TABELAS DE TODO O BANCO ----------------------------------------------------------------------
+
+-- SELECIONAR TODAS AS COLUNAS DE UMA DETERMINADA TABELA
+SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = 'INV_SALDO_DIA'
+
+-- SELECIONAR TODAS AS TABELAS QUE CONTEM UMA DETERMINADA COLUNA
+SELECT TABLE_NAME FROM ALL_TAB_COLUMNS WHERE COLUMN_NAME = 'TPLAN'
+
+
+---------- TABELAS TITULOS PUBLICOS PRIVADO-------------------------------------------------------------------------
+
+SELECT * FROM INV_OPE_PUBPRIV  -- OPERA�OES 
+SELECT * FROM INV_TIT_PUBPRIV  -- TITULOS 
+
+--------------- TABELA DE RENTABILIDADE POR CLASSE DE ATIVO ---------------------------------------------------------
+
+SELECT * FROM INV_RENCMZ_CLSATV 
+
+------------ TABELS PARA CONSULTA DE SALDO --------------------------------------------------------------------------
+
+SELECT * FROM INV_SALDO_DIA -- SALDO DIA
+
+SELECT * FROM INV_HIS_AZODIA_CTI -- HISTORICO DE ATUALIZA��O DA CARTEIRA NO DIA ( DTAZO ) REFERENCIA DE DATA 
+
+------------- TABELA DE LISTA DE CARTEIRA DETALHADA-------------------------------------------------------------------
+
+SELECT * FROM INV_LISTACTI  -- LISTA DE CARTEIRAS 
+SELECT * FROM INV_LSTCTIDET -- LISTA DETALHADA
+
+--------------------------------------------------------------------------------------
